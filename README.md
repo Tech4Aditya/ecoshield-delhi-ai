@@ -1,5 +1,10 @@
 # Agentic AI Pollution-Control System — Delhi Anti-Smog Tanker Network
 
+**Live demo:** https://krishiv47.github.io/ecoshield-delhi-ai/ — the continuously-running
+EcoShield admin dashboard (live Leaflet map of the Delhi Metro, moving fleet, Fleet /
+Metro / Routing / Health views).
+**Driver console:** https://krishiv47.github.io/ecoshield-delhi-ai/driver.html
+
 A production-grade, single-process **multi-agent simulation** in which a
 **Central AI Coordinator** orchestrates a decentralised fleet of IoT-equipped
 water-tanker trucks (mobile anti-smog misting cannons) across Delhi's transit
