@@ -206,6 +206,10 @@ const DRIVER = (_p && SIM.trucks[_p]) ? _p : SIM.default;
 const frames = SIM.trucks[DRIVER];
 const LL = {};
 meta.nodes.forEach(n => { LL[n.id] = (n.lat!=null&&n.lng!=null)?[n.lat,n.lng]:FALLBACK[n.id]; });
+const GEOM={};
+meta.links.forEach(l=>{ if(l.geom&&l.geom.length>1){ GEOM[l.s+'|'+l.t]=l.geom; GEOM[l.t+'|'+l.s]=l.geom.slice().reverse(); } });
+function segGeom(a,b){ return GEOM[a+'|'+b] || ((LL[a]&&LL[b])?[LL[a],LL[b]]:null); }
+function routeGeom(path){ let out=[]; for(let k=1;k<path.length;k++){ const g=segGeom(path[k-1],path[k]); if(g&&g.length){ out=out.length?out.concat(g.slice(1)):g.slice(); } } return out; }
 const round = Math.round;
 const STATUS = { IDLE:["Resting","#6d7a72"], EN_ROUTE:["En-route","#4b41e1"], SPRAYING:["Cleaning","#006948"],
                  STUCK:["Stuck","#ba1a1a"], REPLENISHING:["Replenishing","#b45309"] };
@@ -223,15 +227,21 @@ function baseLayer(){ return L.tileLayer(__TILE_URL__, __TILE_OPTS__); }
 const map = L.map('map',{ scrollWheelZoom:false, zoomControl:true });
 baseLayer().addTo(map);
 const pts = Object.values(LL).filter(Boolean); map.fitBounds(L.latLngBounds(pts).pad(0.06));
-meta.links.forEach(l => { if(LL[l.s]&&LL[l.t]) L.polyline([LL[l.s],LL[l.t]],
+meta.links.forEach(l => { const g=segGeom(l.s,l.t); if(g) L.polyline(g,
   {color:l.color||"#9aa0a6",weight:l.line==="Service"?1.5:2.5,opacity:.35}).addTo(map); });
 const routeLayer = L.layerGroup().addTo(map);
 const truck = L.marker([28.62,77.2],{zIndexOffset:1000,icon:L.divIcon({className:"tk",iconSize:[30,30],iconAnchor:[15,15],
   html:`<div class="tkdot">${DRIVER.replace(/[^0-9]/g,"")}</div>`})}).addTo(map);
 let targetMarker=null;
 
-function llOf(t){ const a=LL[t.from]||LL[t.node]; if(!t.to||!LL[t.to]) return LL[t.node]||a;
-  const b=LL[t.to]; return [a[0]+(b[0]-a[0])*t.frac,a[1]+(b[1]-a[1])*t.frac]; }
+function llOf(t){ if(!t.to||!LL[t.to]) return LL[t.node]||LL[t.from];
+  const g=segGeom(t.from,t.to); if(g) return pointAlong(g,t.frac);
+  const a=LL[t.from],b=LL[t.to]; return [a[0]+(b[0]-a[0])*t.frac,a[1]+(b[1]-a[1])*t.frac]; }
+function pointAlong(pts,frac){ if(!pts||pts.length<2) return pts?pts[0]:null;
+  if(frac<=0)return pts[0]; if(frac>=1)return pts[pts.length-1];
+  let tot=0,seg=[]; for(let k=1;k<pts.length;k++){const d=haversine(pts[k-1],pts[k]);seg.push(d);tot+=d;}
+  let tgt=frac*tot,acc=0; for(let k=1;k<pts.length;k++){const d=seg[k-1]; if(acc+d>=tgt){const r=(tgt-acc)/(d||1);
+    return [pts[k-1][0]+(pts[k][0]-pts[k-1][0])*r, pts[k-1][1]+(pts[k][1]-pts[k-1][1])*r];} acc+=d;} return pts[pts.length-1]; }
 function haversine(a,b){ const R=6371,r=Math.PI/180;
   const dLa=(b[0]-a[0])*r,dLo=(b[1]-a[1])*r,la1=a[0]*r,la2=b[0]*r;
   const h=Math.sin(dLa/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLo/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
@@ -287,10 +297,10 @@ function render(i){
   truck._icon && (truck._icon.firstChild.style.background=color,
                   truck._icon.firstChild.className="tkdot"+(t.stationary?" pulse":""));
   routeLayer.clearLayers();
-  if(route.length>1){ const pts2=route.map(r=>LL[r]).filter(Boolean);
-    routeLayer.addLayer(L.polyline(pts2,{color:color,weight:5,opacity:.85}));
-    const remPts=route.slice(idx).map(r=>LL[r]).filter(Boolean);
-    routeLayer.addLayer(L.polyline(remPts,{color:color,weight:5,opacity:1,dashArray:"1 8"})); }
+  if(route.length>1){ const full=routeGeom(route);
+    if(full.length) routeLayer.addLayer(L.polyline(full,{color:color,weight:5,opacity:.85}));
+    const rem=routeGeom(route.slice(idx));
+    if(rem.length) routeLayer.addLayer(L.polyline(rem,{color:color,weight:5,opacity:1,dashArray:"1 8"})); }
   if(t.target&&LL[t.target]) routeLayer.addLayer(L.circleMarker(LL[t.target],{radius:9,color:"#ba1a1a",weight:3,fillColor:"#ffdad6",fillOpacity:.9}));
   // feed
   const feed=document.getElementById("feed"); feed.innerHTML="";

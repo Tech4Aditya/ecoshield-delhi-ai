@@ -315,6 +315,19 @@ meta.nodes.forEach(n => { NAME[n.id]=n.name; TYPE[n.id]=n.type;
 const JUNCTIONS = meta.nodes.filter(n => n.type==="JUNCTION").map(n=>n.id);
 document.getElementById("foot-net").textContent = JUNCTIONS.length+" stations · "+meta.fleet.length+" tankers";
 
+// Road-following geometry per edge (both directions) so paths follow real streets.
+const GEOM={};
+meta.links.forEach(l=>{ if(l.geom&&l.geom.length>1){ GEOM[l.s+'|'+l.t]=l.geom; GEOM[l.t+'|'+l.s]=l.geom.slice().reverse(); } });
+function segGeom(a,b){ return GEOM[a+'|'+b] || ((LL[a]&&LL[b])?[LL[a],LL[b]]:null); }
+function hav(a,b){ const R=6371,r=Math.PI/180,dla=(b[0]-a[0])*r,dlo=(b[1]-a[1])*r,la1=a[0]*r,la2=b[0]*r;
+  const h=Math.sin(dla/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dlo/2)**2; return 2*R*Math.asin(Math.sqrt(h)); }
+function pointAlong(pts,frac){ if(!pts||pts.length<2) return pts?pts[0]:null;
+  if(frac<=0)return pts[0]; if(frac>=1)return pts[pts.length-1];
+  let tot=0,seg=[]; for(let k=1;k<pts.length;k++){const d=hav(pts[k-1],pts[k]);seg.push(d);tot+=d;}
+  let tgt=frac*tot,acc=0; for(let k=1;k<pts.length;k++){const d=seg[k-1]; if(acc+d>=tgt){const r=(tgt-acc)/(d||1);
+    return [pts[k-1][0]+(pts[k][0]-pts[k-1][0])*r, pts[k-1][1]+(pts[k][1]-pts[k-1][1])*r];} acc+=d;} return pts[pts.length-1]; }
+function routeGeom(path){ let out=[]; for(let k=1;k<path.length;k++){ const g=segGeom(path[k-1],path[k]); if(g&&g.length){ out=out.length?out.concat(g.slice(1)):g.slice(); } } return out; }
+
 function aqiColor(a){ if(a<120) return "#10b981"; if(a<250) return "#f59e0b"; return "#ef4444"; }
 const STATUS = { IDLE:"#6d7a72", EN_ROUTE:"#4b41e1", SPRAYING:"#006948", STUCK:"#ba1a1a", REPLENISHING:"#b45309" };
 const round = Math.round;
@@ -328,8 +341,8 @@ map.fitBounds(L.latLngBounds(pts).pad(0.06));
 const roadLayer = L.layerGroup().addTo(map);
 const zoneLayer = L.layerGroup().addTo(map);
 const congLayer = L.layerGroup().addTo(map);
-meta.links.forEach(l => { if(LL[l.s]&&LL[l.t]){ const svc = l.line==="Service";
-  roadLayer.addLayer(L.polyline([LL[l.s],LL[l.t]],
+meta.links.forEach(l => { const g=segGeom(l.s,l.t); if(g){ const svc = l.line==="Service";
+  roadLayer.addLayer(L.polyline(g,
     {color:l.color||"#9aa0a6", weight:svc?2:4, opacity:svc?.45:.7, dashArray:svc?"3 6":null})); } });
 
 const zoneEls = {}, dotEls = {}, truckEls = {};
@@ -354,8 +367,9 @@ meta.fleet.forEach(t => {
   truckEls[t.id] = mk;
 });
 
-function truckLatLng(t){ const a = LL[t.from]||LL[t.node]; if(!t.to||!LL[t.to]) return LL[t.node]||a;
-  const b = LL[t.to]; return [a[0]+(b[0]-a[0])*t.frac, a[1]+(b[1]-a[1])*t.frac]; }
+function truckLatLng(t){ if(!t.to||!LL[t.to]) return LL[t.node]||LL[t.from];
+  const g=segGeom(t.from,t.to); if(g) return pointAlong(g,t.frac);
+  const a=LL[t.from],b=LL[t.to]; return [a[0]+(b[0]-a[0])*t.frac,a[1]+(b[1]-a[1])*t.frac]; }
 function isCleaning(s){ return s==="EN_ROUTE"||s==="SPRAYING"; }
 
 function tagClass(l){
@@ -382,8 +396,8 @@ function render(i){
         d.setTooltipContent(`${NAME[n.id]} · PM2.5 ${round(n.aqi)}`); }
     });
     congLayer.clearLayers();
-    f.congested.forEach(c => { if(LL[c.s]&&LL[c.t]){ const grid=c.factor>=6;
-      congLayer.addLayer(L.polyline([LL[c.s],LL[c.t]],{color:grid?"#ba1a1a":"#f59e0b",weight:grid?6:4,opacity:.9,dashArray:grid?"3 8":"8 6"})); } });
+    f.congested.forEach(c => { const g=segGeom(c.s,c.t); if(g){ const grid=c.factor>=6;
+      congLayer.addLayer(L.polyline(g,{color:grid?"#ba1a1a":"#f59e0b",weight:grid?6:4,opacity:.9,dashArray:grid?"3 8":"8 6"})); } });
     f.trucks.forEach(t => { const m = truckEls[t.id]; if(!m) return;
       const ll = truckLatLng(t); if(ll) m.setLatLng(ll);
       if(m._icon){ const dot=m._icon.firstChild; const col=STATUS[t.status]||"#6d7a72"; const resting=(t.status==="IDLE");
@@ -555,7 +569,7 @@ function initRouting(){
   rmap=L.map('rmap',{scrollWheelZoom:false});
   baseLayer().addTo(rmap);
   rmap.fitBounds(L.latLngBounds(Object.values(LL).filter(Boolean)).pad(0.06));
-  meta.links.forEach(l=>{ if(LL[l.s]&&LL[l.t]) L.polyline([LL[l.s],LL[l.t]],{color:l.color||'#9aa0a6',weight:l.line==='Service'?1.5:2.5,opacity:.35}).addTo(rmap); });
+  meta.links.forEach(l=>{ const g=segGeom(l.s,l.t); if(g) L.polyline(g,{color:l.color||'#9aa0a6',weight:l.line==='Service'?1.5:2.5,opacity:.35}).addTo(rmap); });
   rLayer=L.layerGroup().addTo(rmap);
   document.getElementById('r-go').onclick=computeRoute;
   setTimeout(()=>{ rmap.invalidateSize(); computeRoute(); },60);
@@ -570,7 +584,7 @@ function computeRoute(){
   out.innerHTML=`<div class="p-3 rounded-lg bg-surface-container-low">${res.path.length-1} hops &middot; <b>${dist.toFixed(1)} km</b> &middot; ETA <b>${round(res.cost*60)} min</b><br><span class="text-xs text-on-surface-variant">minimised by Dijkstra (free-flow travel time)</span></div>`;
   pl.innerHTML=res.path.map((id,k)=>`<li class="flex items-center gap-2 px-2 py-1 ${k===0?'font-bold text-primary':k===res.path.length-1?'font-bold text-error':''}">
     <span class="material-symbols-outlined text-sm">${k===0?'trip_origin':k===res.path.length-1?'place':'fiber_manual_record'}</span>${NAME[id]||id}</li>`).join('');
-  const pts=res.path.map(id=>LL[id]).filter(Boolean);
+  const geo=routeGeom(res.path); const pts=geo.length?geo:res.path.map(id=>LL[id]).filter(Boolean);
   rLayer.addLayer(L.polyline(pts,{color:'#006948',weight:6,opacity:.9}));
   rLayer.addLayer(L.circleMarker(LL[s],{radius:8,color:'#006948',fillColor:'#85f8c4',fillOpacity:1}));
   rLayer.addLayer(L.circleMarker(LL[d],{radius:8,color:'#ba1a1a',fillColor:'#ffdad6',fillOpacity:1}));

@@ -482,7 +482,10 @@ class SimulationEngine:
             if key in seen:
                 continue
             seen.add(key)
-            links.append({"s": key[0], "t": key[1], "line": e.line, "color": e.line_color})
+            # Use the edge oriented key[0]->key[1] so the road geometry matches.
+            oriented = self.graph.edge(key[0], key[1])
+            links.append({"s": key[0], "t": key[1], "line": oriented.line,
+                          "color": oriented.line_color, "geom": oriented.geometry})
         # Directed, weighted edge list so the Routing Engine view can run Dijkstra
         # in the browser (weight = free-flow travel time in hours).
         edges_directed = [

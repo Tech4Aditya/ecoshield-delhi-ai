@@ -14,7 +14,9 @@ changes outside this file and the engine's builder selection.
 
 from __future__ import annotations
 
+import json
 import math
+import os
 import re
 
 from .enums import CapacityClass
@@ -231,7 +233,26 @@ def build_metro_graph() -> TransitGraph:
         g.edge(nearest, d_id).line = "Service"
         g.edge(nearest, d_id).line_color = "#9aa0a6"
 
+    _attach_road_geometry(g)
     return g
+
+
+def _attach_road_geometry(g: TransitGraph) -> None:
+    """Load cached OSRM road polylines (if present) onto each edge, both ways."""
+    path = os.path.join(os.path.dirname(__file__), "edge_geometry.json")
+    if not os.path.exists(path):
+        return
+    try:
+        with open(path, encoding="utf-8") as fh:
+            cache = json.load(fh)
+    except (OSError, ValueError):
+        return
+    for key, geom in cache.items():
+        u, v = key.split("|")
+        if g.has_edge(u, v):
+            g.edge(u, v).geometry = geom
+        if g.has_edge(v, u):
+            g.edge(v, u).geometry = list(reversed(geom))
 
 
 # --------------------------------------------------------------------------- #

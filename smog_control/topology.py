@@ -260,6 +260,7 @@ class Edge:
     emission_penalty: float = 0.0          # last AI-applied overhead (cost-hours)
     line: str = ""                         # metro corridor this segment follows
     line_color: str = ""                   # hex colour for map rendering
+    geometry: list = field(default_factory=list)  # road-following [lat,lng] polyline
 
     factor_history: deque = field(default_factory=lambda: deque(maxlen=8))
 
