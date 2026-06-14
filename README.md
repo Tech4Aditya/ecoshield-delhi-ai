@@ -4,6 +4,7 @@
 EcoShield admin dashboard (live Leaflet map of the Delhi Metro, moving fleet, Fleet /
 Metro / Routing / Health views).
 **Driver console:** https://krishiv47.github.io/ecoshield-delhi-ai/driver.html
+**Presentation:** [EcoShield-Delhi.pdf](EcoShield-Delhi.pdf) — 13-slide overview (source: [presentation.html](presentation.html)).
 
 A production-grade, single-process **multi-agent simulation** in which a
 **Central AI Coordinator** orchestrates a decentralised fleet of IoT-equipped

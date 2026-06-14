@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<title>EcoShield Delhi — Project Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --primary:#006948; --primary-c:#00855d; --secondary:#4b41e1; --secondary-c:#645efb;
+    --ink:#191c1e; --muted:#3d4a42; --bg:#f7f9fb; --line:#bccac0; --line-soft:#e0e3e5;
+    --amber:#b45309; --error:#ba1a1a; --white:#ffffff;
+  }
+  *{ box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; margin:0; padding:0; }
+  html,body{ background:#e9edf0; font-family:'Inter',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif; color:var(--ink); }
+  .deck{ display:flex; flex-direction:column; align-items:center; }
+  .slide{ width:1280px; height:720px; background:var(--white); position:relative; overflow:hidden; }
+  .pad{ position:absolute; inset:0; padding:64px 72px; display:flex; flex-direction:column; }
+  .kicker{ font-size:15px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--primary); }
+  h1{ font-size:60px; font-weight:800; letter-spacing:-.02em; line-height:1.05; }
+  h2{ font-size:40px; font-weight:700; letter-spacing:-.01em; }
+  h3{ font-size:22px; font-weight:600; }
+  p{ font-size:19px; line-height:1.6; color:var(--muted); }
+  .lead{ font-size:23px; line-height:1.55; color:var(--muted); }
+  .foot{ position:absolute; left:72px; right:72px; bottom:30px; display:flex; justify-content:space-between;
+         font-size:13px; color:#8b949e; font-weight:600; letter-spacing:.04em; border-top:1px solid var(--line-soft); padding-top:12px; }
+  .accent{ color:var(--primary); } .accent2{ color:var(--secondary); }
+  .grid{ display:grid; gap:20px; }
+  .card{ background:var(--bg); border:1px solid var(--line); border-radius:16px; padding:24px 26px; }
+  .card h3{ margin-bottom:8px; }
+  .card p{ font-size:16px; line-height:1.5; }
+  .num{ width:40px; height:40px; border-radius:11px; background:var(--secondary); color:#fff;
+        font-weight:700; font-size:18px; display:flex; align-items:center; justify-content:center; }
+  .stat{ background:var(--bg); border:1px solid var(--line); border-radius:16px; padding:22px 24px; }
+  .stat .v{ font-size:46px; font-weight:800; letter-spacing:-.02em; line-height:1; }
+  .stat .k{ font-size:15px; color:var(--muted); margin-top:8px; font-weight:500; }
+  .pill{ display:inline-block; font-size:14px; font-weight:600; padding:6px 14px; border-radius:999px; }
+  .formula{ font-family:'JetBrains Mono',ui-monospace,monospace; background:#0f1720; color:#e6edf3;
+            border-radius:14px; padding:22px 26px; font-size:18px; line-height:1.7; }
+  .formula .g{ color:#56d364; } .formula .b{ color:#79c0ff; } .formula .a{ color:#f0b72f; } .formula .m{ color:#8b949e; }
+  .chip{ font-size:13px; font-weight:600; padding:5px 12px; border-radius:999px; background:#eaf3ee; color:var(--primary); border:1px solid #c7e3d6; }
+  ul.clean{ list-style:none; } ul.clean li{ font-size:18px; color:var(--muted); line-height:1.7; padding-left:26px; position:relative; }
+  ul.clean li::before{ content:""; position:absolute; left:0; top:11px; width:10px; height:10px; border-radius:3px; background:var(--primary); }
+  /* Title slide */
+  .title{ background:#04241a; color:#fff; }
+  .title h1{ color:#fff; } .title .kicker{ color:#68dba9; }
+  .title p{ color:#a9c6ba; }
+  .dotgrid{ position:absolute; inset:0; background-image:radial-gradient(#0c3a2b 1.5px, transparent 1.5px); background-size:28px 28px; opacity:.5; }
+  @media screen{ .slide{ margin:18px 0; box-shadow:0 10px 30px rgba(15,23,42,.12); border-radius:6px; } }
+  @media print{
+    @page{ size:1280px 720px; margin:0; }
+    html,body{ background:#fff; }
+    .slide{ margin:0; box-shadow:none; border-radius:0; page-break-after:always; break-after:page; }
+    .slide:last-child{ page-break-after:auto; break-after:auto; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- 1 TITLE -->
+<section class="slide title">
+  <div class="dotgrid"></div>
+  <div class="pad" style="justify-content:center;">
+    <div class="kicker">Agentic AI &middot; Autonomous Logistics &middot; Urban Air Quality</div>
+    <h1 style="margin-top:18px;">EcoShield Delhi</h1>
+    <h2 style="color:#85f8c4; font-weight:600; margin-top:10px;">Agentic AI Pollution-Control System</h2>
+    <p style="font-size:22px; max-width:880px; margin-top:22px;">A decentralised fleet of anti-smog water-sprinkler tankers, routed across the Delhi Metro network by a central AI coordinator running a modified multi-objective Dijkstra solver.</p>
+    <div style="margin-top:34px; display:flex; gap:14px; flex-wrap:wrap;">
+      <span class="pill" style="background:#0c3a2b; color:#85f8c4;">krishiv47</span>
+      <span class="pill" style="background:#0c3a2b; color:#c3c0ff;">krishiv47.github.io/ecoshield-delhi-ai</span>
+      <span class="pill" style="background:#0c3a2b; color:#a9c6ba;">github.com/krishiv47/ecoshield-delhi-ai</span>
+    </div>
+  </div>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">The problem</div>
+    <h2 style="margin-top:12px;">Delhi's air is a moving, time-critical target</h2>
+    <p class="lead" style="max-width:980px; margin-top:16px;">PM2.5 hotspots flare unpredictably with traffic surges, industrial haze and inversions. Static smog towers cannot follow the pollution &mdash; mitigation has to be mobile, predictive and coordinated.</p>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr); margin-top:40px;">
+      <div class="stat"><div class="v accent" style="color:var(--error);">250+</div><div class="k">PM2.5 (ug/m3) marks a "severe" hotspot needing intervention</div></div>
+      <div class="stat"><div class="v accent">6+</div><div class="k">Major junctions flare at once during peak events</div></div>
+      <div class="stat"><div class="v accent2">minutes</div><div class="k">The window to act before a spike worsens</div></div>
+    </div>
+    <p style="margin-top:36px; font-size:20px;"><b class="accent">Goal:</b> mitigate hotspots <b>before</b> sensors confirm them, coordinate many trucks as one fleet, and keep every unit fuelled, watered and optimally routed &mdash; autonomously.</p>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>02</span></div>
+</section>
+
+<!-- 3 SOLUTION -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">The solution</div>
+    <h2 style="margin-top:12px;">One brain, many mobile actuators</h2>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr); margin-top:34px;">
+      <div class="card"><h3 class="accent">Central AI Coordinator</h3><p>Global telemetry of the network and fleet. Predicts spikes, dispatches sub-fleets, handles exceptions, enforces the supply lifecycle.</p></div>
+      <div class="card"><h3 class="accent">Mobile tanker fleet</h3><p>Heterogeneous water-sprinkler trucks (3000 / 5000 / 12000 L) with IoT misting cannons. Drivers steer; the AI dictates the route.</p></div>
+      <div class="card"><h3 class="accent2">Delhi Metro network</h3><p>~50 real stations across all lines plus 6 water/charging depots form the directed road graph the fleet operates on.</p></div>
+    </div>
+    <div style="margin-top:34px;" class="grid">
+      <div class="card" style="background:#eef0ff; border-color:#c3c0ff;">
+        <h3 class="accent2">Why "agentic"</h3>
+        <p style="font-size:17px;">The system perceives (live AQI + traffic), reasons (predict, score, route), and acts (dispatch, spray, replenish) in a continuous closed loop &mdash; with no human in the routing decision. Humans are treated as bounded mechanical actuators behind a lockable console.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>03</span></div>
+</section>
+
+<!-- 4 ARCHITECTURE -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">System architecture</div>
+    <h2 style="margin-top:12px;">Strict OOD, clean dependency flow</h2>
+    <svg viewBox="0 0 1140 470" style="margin-top:18px; width:100%; height:470px;">
+      <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="#6d7a72"/></marker></defs>
+      <!-- coordinator -->
+      <rect x="410" y="14" width="320" height="78" rx="14" fill="#006948"/>
+      <text x="570" y="48" text-anchor="middle" fill="#fff" font-size="22" font-weight="700" font-family="Inter">Central AI Coordinator</text>
+      <text x="570" y="74" text-anchor="middle" fill="#bfeada" font-size="15" font-family="Inter">global telemetry &middot; decision loop</text>
+      <!-- three sub -->
+      <g font-family="Inter">
+      <rect x="120" y="150" width="270" height="74" rx="13" fill="#eef0ff" stroke="#645efb"/>
+      <text x="255" y="180" text-anchor="middle" fill="#3323cc" font-size="18" font-weight="700">Predictive analytics</text>
+      <text x="255" y="203" text-anchor="middle" fill="#4b41e1" font-size="14">&gt;40% influx over 2 ticks</text>
+      <rect x="435" y="150" width="270" height="74" rx="13" fill="#eef0ff" stroke="#645efb"/>
+      <text x="570" y="180" text-anchor="middle" fill="#3323cc" font-size="18" font-weight="700">Fleet dispatcher</text>
+      <text x="570" y="203" text-anchor="middle" fill="#4b41e1" font-size="14">efficiency score + ETA sync</text>
+      <rect x="750" y="150" width="270" height="74" rx="13" fill="#eef0ff" stroke="#645efb"/>
+      <text x="885" y="180" text-anchor="middle" fill="#3323cc" font-size="18" font-weight="700">Exception handler</text>
+      <text x="885" y="203" text-anchor="middle" fill="#4b41e1" font-size="14">stuck &middot; supply lifecycle</text>
+      </g>
+      <!-- bottom layer -->
+      <g font-family="Inter">
+      <rect x="120" y="300" width="270" height="74" rx="13" fill="#f7f9fb" stroke="#bccac0"/>
+      <text x="255" y="330" text-anchor="middle" fill="#191c1e" font-size="18" font-weight="700">Transit graph G=(V,E)</text>
+      <text x="255" y="353" text-anchor="middle" fill="#3d4a42" font-size="14">stations + depots</text>
+      <rect x="435" y="300" width="270" height="74" rx="13" fill="#f7f9fb" stroke="#bccac0"/>
+      <text x="570" y="330" text-anchor="middle" fill="#191c1e" font-size="18" font-weight="700">Dijkstra router</text>
+      <text x="570" y="353" text-anchor="middle" fill="#3d4a42" font-size="14">multi-objective weights</text>
+      <rect x="750" y="300" width="270" height="74" rx="13" fill="#f7f9fb" stroke="#bccac0"/>
+      <text x="885" y="330" text-anchor="middle" fill="#191c1e" font-size="18" font-weight="700">Tanker fleet</text>
+      <text x="885" y="353" text-anchor="middle" fill="#3d4a42" font-size="14">telemetry every tick</text>
+      </g>
+      <!-- arrows -->
+      <g stroke="#6d7a72" stroke-width="2" fill="none" marker-end="url(#ar)">
+        <path d="M500,92 L270,148"/><path d="M570,92 L570,148"/><path d="M640,92 L870,148"/>
+        <path d="M255,224 L255,298"/><path d="M570,224 L570,298"/><path d="M885,224 L885,298"/>
+        <path d="M390,337 L433,337"/><path d="M705,337 L748,337"/>
+      </g>
+      <text x="885" y="410" text-anchor="middle" fill="#3d4a42" font-size="14" font-family="Inter">feeds telemetry back to the coordinator (closed loop)</text>
+      <path d="M885,374 C885,430 690,430 590,94" stroke="#9aa0a6" stroke-width="1.6" fill="none" stroke-dasharray="5 5" marker-end="url(#ar)"/>
+    </svg>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>04</span></div>
+</section>
+
+<!-- 5 DOMAIN MODEL -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">Domain model</div>
+    <h2 style="margin-top:12px;">A directed graph with live, stateful telemetry</h2>
+    <div class="grid" style="grid-template-columns:1.1fr 1fr; margin-top:30px; align-items:start;">
+      <div>
+        <ul class="clean" style="display:flex; flex-direction:column; gap:14px;">
+          <li><b>Nodes (V):</b> metro stations carrying dynamic <span class="accent">PM2.5</span> and <span class="accent">traffic influx</span>, with rolling history for trend analytics.</li>
+          <li><b>Special nodes:</b> Sewage Treatment Plants (recycled water) and CNG/EV depots (energy) &mdash; modelled as service subclasses via an abstract base.</li>
+          <li><b>Edges (E):</b> stateful road segments whose congestion factor and emission penalty mutate every tick.</li>
+          <li><b>Geometry:</b> every edge snapped to real road shapes (OSRM) so paths follow actual streets.</li>
+        </ul>
+      </div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;">
+        <div class="stat"><div class="v accent">50</div><div class="k">metro stations, all lines</div></div>
+        <div class="stat"><div class="v accent">6</div><div class="k">water / charging depots</div></div>
+        <div class="stat"><div class="v accent2">134</div><div class="k">directed weighted edges</div></div>
+        <div class="stat"><div class="v accent2">16</div><div class="k">tankers (Mini/Medium/Heavy)</div></div>
+      </div>
+    </div>
+    <p style="margin-top:30px; font-size:18px;">Truck state machine: <span class="chip">IDLE</span> <span class="chip">EN_ROUTE</span> <span class="chip">SPRAYING</span> <span class="chip">STUCK</span> <span class="chip">REPLENISHING</span></p>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>05</span></div>
+</section>
+
+<!-- 6 MATH -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">Mathematical core</div>
+    <h2 style="margin-top:12px;">Modified multi-objective Dijkstra</h2>
+    <p class="lead" style="margin-top:14px; max-width:1000px;">Edge weight is not static distance &mdash; it blends congestion-stretched travel time with a dynamic, vehicle-aware emission overhead.</p>
+    <div class="formula" style="margin-top:24px;">
+      <span class="m"># cost of crossing edge e with a given vehicle</span><br/>
+      W(e) = ( <span class="b">distance_km</span> / <span class="b">base_speed</span> ) &times; <span class="a">traffic_density_factor</span> + <span class="g">emission_penalty</span><br/><br/>
+      <span class="m"># levied only when a heavy chassis idles into an already-critical cell</span><br/>
+      <span class="g">emission_penalty</span> = COEF &times; emission_weight(vehicle) &times; <span class="a">traffic_factor</span> &times; severity
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr); margin-top:26px;">
+      <div class="card"><h3 class="accent2">Vehicle-aware</h3><p>Mini / Medium / Heavy get different optimal paths over the same graph at the same instant.</p></div>
+      <div class="card"><h3 class="accent2">Dynamic</h3><p>Weights recomputed from live telemetry each query; gridlock reroutes onto open bypasses.</p></div>
+      <div class="card"><h3 class="accent2">Efficient</h3><p>Binary-heap single-source Dijkstra, O((V+E) log V), run in Python and in the browser.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>06</span></div>
+</section>
+
+<!-- 7 WORKFLOWS -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">Agentic workflows</div>
+    <h2 style="margin-top:12px;">Four autonomous behaviours, every tick</h2>
+    <div class="grid" style="grid-template-columns:1fr 1fr; margin-top:30px; gap:22px;">
+      <div class="card" style="display:flex; gap:18px;"><div class="num">1</div><div><h3>Predictive spike pre-emption</h3><p>A &gt;40% influx rise over two ticks flags an imminent breach and sends a pre-emptive curtain before the sensor confirms it.</p></div></div>
+      <div class="card" style="display:flex; gap:18px;"><div class="num">2</div><div><h3>Workload split + ETA sync</h3><p>An efficiency-score matrix picks a 2-3 truck sub-fleet and staggers departures so each arrives as the previous empties.</p></div></div>
+      <div class="card" style="display:flex; gap:18px;"><div class="num">3</div><div><h3>Stuck-in-traffic exceptions</h3><p>Below 5 km/h: mist in place if inside the zone, or revoke the route and re-allocate the load to an unblocked unit.</p></div></div>
+      <div class="card" style="display:flex; gap:18px;"><div class="num">4</div><div><h3>Closed-loop supply lifecycle</h3><p>Below 15% water / 20% fuel, the AI locks the console, routes to the nearest depot, then reintegrates at 95%.</p></div></div>
+    </div>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>07</span></div>
+</section>
+
+<!-- 8 EXCEPTIONS -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">Exception logic in depth</div>
+    <h2 style="margin-top:12px;">The two "stuck in traffic" branches</h2>
+    <div class="grid" style="grid-template-columns:1fr 1fr; margin-top:30px; gap:24px;">
+      <div class="card" style="border-color:#f0997b; background:#fbeee8;">
+        <span class="pill" style="background:#f5c4b3; color:#712b13;">Inside the hotspot zone</span>
+        <h3 style="margin-top:14px; color:#993c1d;">Stationary misting curtain</h3>
+        <p style="font-size:17px;">If a truck is trapped within the target zone, it engages its cannons in place &mdash; a pitch-adjusted curtain knocking down the idling exhaust of the surrounding gridlock. The mission is kept.</p>
+      </div>
+      <div class="card" style="border-color:#85b7eb; background:#eaf1fb;">
+        <span class="pill" style="background:#b5d4f4; color:#0c447c;">Far from the hotspot</span>
+        <h3 style="margin-top:14px; color:#185fa5;">En-route interception</h3>
+        <p style="font-size:17px;">If trapped mid-transit, the AI revokes the target, locks the console, marks the unit STUCK, recomputes the graph, and re-allocates the workload to a moving unit with an open bypass.</p>
+      </div>
+    </div>
+    <p style="margin-top:30px; font-size:18px;"><b class="accent">Recovery:</b> stuck units rejoin the reserve automatically once their segment clears; the displaced workload is topped up by the next dispatch pass.</p>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>08</span></div>
+</section>
+
+<!-- 9 DASHBOARD -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">Operations console</div>
+    <h2 style="margin-top:12px;">A live, data-driven admin dashboard</h2>
+    <p class="lead" style="margin-top:14px; max-width:1000px;">Built on a Material-style design system (Tailwind + Inter), rendered over a real Leaflet map of Delhi. Five working views, one continuously-running simulation.</p>
+    <div class="grid" style="grid-template-columns:repeat(5,1fr); margin-top:32px; gap:16px;">
+      <div class="card" style="padding:20px 18px;"><h3 style="font-size:18px;" class="accent">Admin Control</h3><p style="font-size:14px;">Live map, hotspots, fleet, event stream</p></div>
+      <div class="card" style="padding:20px 18px;"><h3 style="font-size:18px;" class="accent">Fleet Ops</h3><p style="font-size:14px;">Roster of every tanker; open a driver console</p></div>
+      <div class="card" style="padding:20px 18px;"><h3 style="font-size:18px;" class="accent">Metro Network</h3><p style="font-size:14px;">Station air quality across all lines</p></div>
+      <div class="card" style="padding:20px 18px;"><h3 style="font-size:18px;" class="accent2">Routing Engine</h3><p style="font-size:14px;">Interactive Dijkstra path finder</p></div>
+      <div class="card" style="padding:20px 18px;"><h3 style="font-size:18px;" class="accent2">System Health</h3><p style="font-size:14px;">Platform &amp; coordinator telemetry</p></div>
+    </div>
+    <p style="margin-top:34px; font-size:18px;">Tankers shown <b class="accent">filled = cleaning</b>, <b>hollow = resting in reserve</b>; metro lines in their official colours; gridlock highlighted live.</p>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>09</span></div>
+</section>
+
+<!-- 10 DRIVER / ROLES -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">Role-based access</div>
+    <h2 style="margin-top:12px;">The human steers, the AI dictates</h2>
+    <div class="grid" style="grid-template-columns:1fr 1fr; margin-top:26px; gap:30px; align-items:center;">
+      <div>
+        <ul class="clean" style="display:flex; flex-direction:column; gap:14px;">
+          <li>A restricted in-cab <b>Driver Console</b> shows the assigned mission, the Dijkstra route, and water/charge gauges.</li>
+          <li>Admin modules are <b class="accent" style="color:var(--error);">locked</b> for drivers &mdash; bounded actuator only.</li>
+          <li>The admin can open <b>any</b> driver's console (one-way hierarchy).</li>
+          <li>A "console locked" banner appears whenever the AI overrides the route.</li>
+        </ul>
+      </div>
+      <svg viewBox="0 0 540 300" style="width:100%; height:300px;" font-family="Inter">
+        <rect x="40" y="50" width="200" height="92" rx="14" fill="#006948"/>
+        <text x="140" y="90" text-anchor="middle" fill="#fff" font-size="19" font-weight="700">Admin</text>
+        <text x="140" y="114" text-anchor="middle" fill="#bfeada" font-size="14">Fleet Commander</text>
+        <rect x="300" y="50" width="200" height="92" rx="14" fill="#f7f9fb" stroke="#bccac0"/>
+        <text x="400" y="90" text-anchor="middle" fill="#191c1e" font-size="19" font-weight="700">Driver</text>
+        <text x="400" y="114" text-anchor="middle" fill="#3d4a42" font-size="14">in-cab console</text>
+        <path d="M240,84 L298,84" stroke="#006948" stroke-width="3" fill="none" marker-end="url(#ar2)"/>
+        <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#006948"/></marker></defs>
+        <text x="270" y="74" text-anchor="middle" fill="#006948" font-size="13" font-weight="700">can open</text>
+        <path d="M300,118 L242,118" stroke="#ba1a1a" stroke-width="3" fill="none" stroke-dasharray="6 5"/>
+        <text x="271" y="140" text-anchor="middle" fill="#ba1a1a" font-size="13" font-weight="700">blocked</text>
+        <rect x="40" y="190" width="460" height="70" rx="12" fill="#fbeaea" stroke="#f09595"/>
+        <text x="270" y="222" text-anchor="middle" fill="#93000a" font-size="15" font-weight="700">Locked for drivers</text>
+        <text x="270" y="244" text-anchor="middle" fill="#a32d2d" font-size="14">Admin Control &middot; Fleet Ops &middot; Metro &middot; Routing &middot; Health</text>
+      </svg>
+    </div>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>10</span></div>
+</section>
+
+<!-- 11 TECH + DEPLOY -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">Engineering &amp; deployment</div>
+    <h2 style="margin-top:12px;">Production-grade, fully reproducible</h2>
+    <div class="grid" style="grid-template-columns:1fr 1fr 1fr; margin-top:32px;">
+      <div class="card"><h3 class="accent">Core engine</h3><p>Python 3.10+, standard library only. Strict OOD: dataclasses, enums, ABCs, type hints, binary-heap Dijkstra.</p></div>
+      <div class="card"><h3 class="accent">Front end</h3><p>Tailwind + Inter design system, Leaflet map on OpenStreetMap/CARTO. No build step; Mappls-ready via one key.</p></div>
+      <div class="card"><h3 class="accent2">Delivery</h3><p>Public GitHub repo, GitHub Pages deploy, continuously-running build, 28 passing unit tests.</p></div>
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(3,1fr); margin-top:24px;">
+      <div class="stat"><div class="v accent">28</div><div class="k">unit + integration tests passing</div></div>
+      <div class="stat"><div class="v accent">0</div><div class="k">third-party runtime dependencies</div></div>
+      <div class="stat"><div class="v accent2">Live</div><div class="k">krishiv47.github.io/ecoshield-delhi-ai</div></div>
+    </div>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>11</span></div>
+</section>
+
+<!-- 12 RESULTS / ROADMAP -->
+<section class="slide">
+  <div class="pad">
+    <div class="kicker">Outcomes &amp; roadmap</div>
+    <h2 style="margin-top:12px;">What it demonstrates &mdash; and what's next</h2>
+    <div class="grid" style="grid-template-columns:1fr 1fr; margin-top:30px; gap:30px;">
+      <div class="card" style="background:#eaf3ee; border-color:#9fe1cb;">
+        <h3 class="accent">Demonstrated</h3>
+        <ul class="clean" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+          <li>Continuous multi-agent coordination over a real metro network</li>
+          <li>Predictive, split, exception and supply workflows firing live</li>
+          <li>Hotspots mitigated tick-over-tick while a reserve still rests</li>
+        </ul>
+      </div>
+      <div class="card" style="background:#eef0ff; border-color:#c3c0ff;">
+        <h3 class="accent2">Roadmap</h3>
+        <ul class="clean" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+          <li style="--x:0;">Live IoT AQI + traffic feeds replacing the simulated environment</li>
+          <li>Mappls / MapmyIndia basemap and turn-by-turn directions</li>
+          <li>GTFS metro alignments and reinforcement-learned dispatch</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:34px; font-size:19px;">The architecture is data-source agnostic &mdash; swapping the simulated feed for real telemetry needs no change to the agents or the solver.</p>
+  </div>
+  <div class="foot"><span>EcoShield Delhi</span><span>12</span></div>
+</section>
+
+<!-- 13 CLOSING -->
+<section class="slide title">
+  <div class="dotgrid"></div>
+  <div class="pad" style="justify-content:center;">
+    <div class="kicker">Thank you</div>
+    <h1 style="margin-top:16px; font-size:54px;">An autonomous shield<br/>for Delhi's air</h1>
+    <p style="font-size:21px; max-width:840px; margin-top:22px;">Perceive, predict, dispatch, mitigate &mdash; continuously, and without a human in the routing loop.</p>
+    <div style="margin-top:36px; display:flex; gap:14px; flex-wrap:wrap;">
+      <span class="pill" style="background:#0c3a2b; color:#85f8c4;">Live demo &middot; krishiv47.github.io/ecoshield-delhi-ai</span>
+      <span class="pill" style="background:#0c3a2b; color:#c3c0ff;">Source &middot; github.com/krishiv47/ecoshield-delhi-ai</span>
+    </div>
+  </div>
+</section>
+
+</div>
+</body></html>
