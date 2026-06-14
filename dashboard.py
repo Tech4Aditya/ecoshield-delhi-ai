@@ -34,6 +34,20 @@ CORE_LATLNG = {
     "DCG": [28.5800, 77.0590],
 }
 
+# Basemap provider. Paste a Mappls (MapmyIndia) Map/Raster API key here to switch
+# every map to Mappls; left empty, the app uses a keyless, detailed street basemap.
+MAPPLS_KEY = ""
+
+
+def tile_config() -> tuple:
+    """Return ``(url_json, opts_js)`` for the Leaflet basemap tile layer."""
+    if MAPPLS_KEY:
+        url = "https://apis.mappls.com/advancedmaps/v1/" + MAPPLS_KEY + "/tile/{z}/{x}/{y}.png"
+        return json.dumps(url), '{attribution:"Mappls (MapmyIndia)", maxZoom:18}'
+    # Keyless, detailed street map (CARTO Voyager — OSM data, roads + labels).
+    url = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+    return json.dumps(url), '{attribution:"OpenStreetMap, CARTO", subdomains:"abcd", maxZoom:19}'
+
 _TEMPLATE = r"""<!DOCTYPE html>
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
@@ -305,9 +319,9 @@ function aqiColor(a){ if(a<120) return "#10b981"; if(a<250) return "#f59e0b"; re
 const STATUS = { IDLE:"#6d7a72", EN_ROUTE:"#4b41e1", SPRAYING:"#006948", STUCK:"#ba1a1a", REPLENISHING:"#b45309" };
 const round = Math.round;
 
+function baseLayer(){ return L.tileLayer(__TILE_URL__, __TILE_OPTS__); }
 const map = L.map('map',{ scrollWheelZoom:false, zoomControl:true });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  { attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19 }).addTo(map);
+baseLayer().addTo(map);
 const pts = Object.values(LL).filter(Boolean);
 map.fitBounds(L.latLngBounds(pts).pad(0.06));
 
@@ -539,7 +553,7 @@ function initRouting(){
   const opts=sts.map(n=>`<option value="${n.id}">${n.name}</option>`).join('');
   froms.innerHTML=opts; tos.innerHTML=opts; froms.value=sts[0].id; tos.value=sts[Math.min(sts.length-1,15)].id;
   rmap=L.map('rmap',{scrollWheelZoom:false});
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(rmap);
+  baseLayer().addTo(rmap);
   rmap.fitBounds(L.latLngBounds(Object.values(LL).filter(Boolean)).pad(0.06));
   meta.links.forEach(l=>{ if(LL[l.s]&&LL[l.t]) L.polyline([LL[l.s],LL[l.t]],{color:l.color||'#9aa0a6',weight:l.line==='Service'?1.5:2.5,opacity:.35}).addTo(rmap); });
   rLayer=L.layerGroup().addTo(rmap);
@@ -574,7 +588,9 @@ def build_html(ticks: int, seed: int, topology: str) -> str:
     engine = SimulationEngine(seed=seed, verbose=False, topology=topology)
     engine.run_ticks(ticks)
     payload = {"meta": engine.viz_meta(), "frames": engine.frames, "latlng": CORE_LATLNG}
-    return _TEMPLATE.replace("__DATA__", json.dumps(payload))
+    url, opts = tile_config()
+    return (_TEMPLATE.replace("__DATA__", json.dumps(payload))
+            .replace("__TILE_URL__", url).replace("__TILE_OPTS__", opts))
 
 
 def main() -> None:

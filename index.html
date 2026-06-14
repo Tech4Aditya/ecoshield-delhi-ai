@@ -269,9 +269,9 @@ function aqiColor(a){ if(a<120) return "#10b981"; if(a<250) return "#f59e0b"; re
 const STATUS = { IDLE:"#6d7a72", EN_ROUTE:"#4b41e1", SPRAYING:"#006948", STUCK:"#ba1a1a", REPLENISHING:"#b45309" };
 const round = Math.round;
 
+function baseLayer(){ return L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {attribution:"OpenStreetMap, CARTO", subdomains:"abcd", maxZoom:19}); }
 const map = L.map('map',{ scrollWheelZoom:false, zoomControl:true });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  { attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19 }).addTo(map);
+baseLayer().addTo(map);
 const pts = Object.values(LL).filter(Boolean);
 map.fitBounds(L.latLngBounds(pts).pad(0.06));
 
@@ -503,7 +503,7 @@ function initRouting(){
   const opts=sts.map(n=>`<option value="${n.id}">${n.name}</option>`).join('');
   froms.innerHTML=opts; tos.innerHTML=opts; froms.value=sts[0].id; tos.value=sts[Math.min(sts.length-1,15)].id;
   rmap=L.map('rmap',{scrollWheelZoom:false});
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(rmap);
+  baseLayer().addTo(rmap);
   rmap.fitBounds(L.latLngBounds(Object.values(LL).filter(Boolean)).pad(0.06));
   meta.links.forEach(l=>{ if(LL[l.s]&&LL[l.t]) L.polyline([LL[l.s],LL[l.t]],{color:l.color||'#9aa0a6',weight:l.line==='Service'?1.5:2.5,opacity:.35}).addTo(rmap); });
   rLayer=L.layerGroup().addTo(rmap);

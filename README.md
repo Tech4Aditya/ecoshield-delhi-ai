@@ -35,8 +35,9 @@ python3 dashboard.py --ticks 24 --seed 42   # customise the visualised run
 A production-style operations console built on the *Ecologic Intelligence System*
 design language (Tailwind + Inter + Material Symbols, emerald/indigo — no emojis).
 The default `metro` build runs the simulation over **~50 real Delhi Metro stations
-across all lines** plus 6 water/charging depots, rendered on a real Leaflet/Carto
-map of Delhi:
+across all lines** plus 6 water/charging depots, rendered on a real Leaflet map of
+Delhi (detailed keyless CARTO Voyager street basemap; set `MAPPLS_KEY` in
+`dashboard.py` to switch every map to Mappls/MapmyIndia tiles):
 
 * Metro **lines drawn in their official colors**; stations as PM2.5 heat zones.
 * Water-sprinkler tankers that either **CLEAN** hotspots (spraying / en-route,

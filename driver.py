@@ -24,7 +24,7 @@ import webbrowser
 from collections import Counter
 
 from smog_control import SimulationEngine
-from dashboard import CORE_LATLNG
+from dashboard import CORE_LATLNG, tile_config
 
 
 def pick_busiest_truck(frames: list[dict]) -> str:
@@ -219,9 +219,9 @@ document.querySelectorAll(".nav-lock").forEach(b => b.onclick = () => {
   toast.style.opacity="1"; clearTimeout(toastT); toastT=setTimeout(()=>toast.style.opacity="0",2200); });
 
 // map
+function baseLayer(){ return L.tileLayer(__TILE_URL__, __TILE_OPTS__); }
 const map = L.map('map',{ scrollWheelZoom:false, zoomControl:true });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  { attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19 }).addTo(map);
+baseLayer().addTo(map);
 const pts = Object.values(LL).filter(Boolean); map.fitBounds(L.latLngBounds(pts).pad(0.06));
 meta.links.forEach(l => { if(LL[l.s]&&LL[l.t]) L.polyline([LL[l.s],LL[l.t]],
   {color:l.color||"#9aa0a6",weight:l.line==="Service"?1.5:2.5,opacity:.35}).addTo(map); });
@@ -328,7 +328,9 @@ def build_html(ticks: int, seed: int, truck: str | None) -> str:
     engine.run_ticks(ticks)
     chosen = truck or pick_busiest_truck(engine.frames)
     payload = build_payload(engine, chosen)
-    return _TEMPLATE.replace("__DATA__", json.dumps(payload))
+    url, opts = tile_config()
+    return (_TEMPLATE.replace("__DATA__", json.dumps(payload))
+            .replace("__TILE_URL__", url).replace("__TILE_OPTS__", opts))
 
 
 def main() -> None:

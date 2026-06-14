@@ -150,9 +150,9 @@ document.querySelectorAll(".nav-lock").forEach(b => b.onclick = () => {
   toast.style.opacity="1"; clearTimeout(toastT); toastT=setTimeout(()=>toast.style.opacity="0",2200); });
 
 // map
+function baseLayer(){ return L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {attribution:"OpenStreetMap, CARTO", subdomains:"abcd", maxZoom:19}); }
 const map = L.map('map',{ scrollWheelZoom:false, zoomControl:true });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  { attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19 }).addTo(map);
+baseLayer().addTo(map);
 const pts = Object.values(LL).filter(Boolean); map.fitBounds(L.latLngBounds(pts).pad(0.06));
 meta.links.forEach(l => { if(LL[l.s]&&LL[l.t]) L.polyline([LL[l.s],LL[l.t]],
   {color:l.color||"#9aa0a6",weight:l.line==="Service"?1.5:2.5,opacity:.35}).addTo(map); });
