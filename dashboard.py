@@ -85,6 +85,7 @@ _TEMPLATE = r"""<!DOCTYPE html>
   .leaflet-marker-icon.tanker-wrap{ transition:transform .6s linear; background:transparent; border:none; }
   .tanker{ width:24px; height:24px; border-radius:9999px; border:2px solid #fff; color:#fff; font-size:10px;
            font-weight:700; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 4px rgba(0,0,0,.35); cursor:pointer; }
+  .tanker.cleaner{ border-radius:6px; }
   .tanker.mist{ animation:pulse 1.1s ease-in-out infinite; }
   .node-label{ background:#fff; border:1px solid #bccac0; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,.12);
                font-weight:600; font-size:11px; color:#191c1e; padding:1px 6px; }
@@ -183,8 +184,9 @@ _TEMPLATE = r"""<!DOCTYPE html>
           <div class="glass-card px-4 py-2 rounded-full flex items-center gap-2 shadow-sm"><span class="w-3 h-3 rounded-full bg-amber-500"></span><span class="text-label-sm">Poor 120-250</span></div>
           <div class="glass-card px-4 py-2 rounded-full flex items-center gap-2 shadow-sm"><span class="w-3 h-3 rounded-full bg-red-500"></span><span class="text-label-sm">Severe &gt;250</span></div>
           <div class="glass-card px-4 py-2 rounded-full flex items-center gap-3 shadow-sm">
-            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-primary border-2 border-white"></span><span class="text-label-sm">Cleaning</span></span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-primary border-2 border-white"></span><span class="text-label-sm">Misting</span></span>
             <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-white border-2 border-outline"></span><span class="text-label-sm">Resting</span></span>
+            <span class="flex items-center gap-1"><span class="w-3 h-3 border-2 border-white" style="background:#0ea5a4;border-radius:3px"></span><span class="text-label-sm">Road cleaner</span></span>
           </div>
         </div>
         <div class="absolute bottom-5 left-5 right-5 z-[400]">
@@ -361,8 +363,8 @@ meta.nodes.forEach(n => {
 });
 meta.fleet.forEach(t => {
   const mk = L.marker([28.62,77.2],{ zIndexOffset:1000, icon:L.divIcon({className:"tanker-wrap",
-    iconSize:[24,24], iconAnchor:[12,12], html:`<div class="tanker" style="background:#6d7a72">${t.id.replace(/[^0-9]/g,"")}</div>`}) }).addTo(map);
-  mk.bindTooltip(t.id+" — open driver console",{direction:"top",className:"node-label"});
+    iconSize:[24,24], iconAnchor:[12,12], html:`<div class="tanker${t.role==='CLEANER'?' cleaner':''}" style="background:#6d7a72">${t.id.replace(/[^0-9]/g,"")}</div>`}) }).addTo(map);
+  mk.bindTooltip((t.role==='CLEANER'?'Road cleaner ':'')+t.id+" — open driver console",{direction:"top",className:"node-label"});
   mk.on("click", ()=>window.open("driver.html?truck="+encodeURIComponent(t.id),"_blank"));
   truckEls[t.id] = mk;
 });
@@ -400,12 +402,13 @@ function render(i){
       congLayer.addLayer(L.polyline(g,{color:grid?"#ba1a1a":"#f59e0b",weight:grid?6:4,opacity:.9,dashArray:grid?"3 8":"8 6"})); } });
     f.trucks.forEach(t => { const m = truckEls[t.id]; if(!m) return;
       const ll = truckLatLng(t); if(ll) m.setLatLng(ll);
-      if(m._icon){ const dot=m._icon.firstChild; const col=STATUS[t.status]||"#6d7a72"; const resting=(t.status==="IDLE");
+      if(m._icon){ const dot=m._icon.firstChild; const isClean=(t.role==="CLEANER");
+        const col = isClean ? "#0ea5a4" : (STATUS[t.status]||"#6d7a72"); const resting=(t.status==="IDLE");
         dot.style.background = resting ? "#ffffff" : col;
-        dot.style.color = resting ? "#3d4a42" : "#ffffff";
+        dot.style.color = resting ? (isClean?"#0ea5a4":"#3d4a42") : "#ffffff";
         dot.style.borderColor = resting ? col : "#ffffff";
-        dot.className = "tanker"+(t.stationary?" mist":"");
-        m._icon.title = `${t.id} ${t.class} · ${t.status} · water ${round(t.water)}% · fuel ${round(t.fuel)}%`; } });
+        dot.className = "tanker"+(isClean?" cleaner":"")+(t.stationary?" mist":"");
+        m._icon.title = `${t.id} ${t.class}${isClean?' road cleaner':''} · ${t.status} · water ${round(t.water)}% · fuel ${round(t.fuel)}%`; } });
   } else {
     if(activeView==="fleet" && window.buildFleet) buildFleet(f);
     else if(activeView==="metro" && window.buildMetro) buildMetro(f);
@@ -423,15 +426,18 @@ function render(i){
   const hot=f.nodes.filter(n=>n.hotspot).length, pred=f.nodes.filter(n=>n.predictive).length;
   document.getElementById("s-hot").textContent=hot;
   document.getElementById("s-hot-d").textContent=pred+" predictive";
-  const cleaning=f.trucks.filter(t=>isCleaning(t.status)).length;
-  const resting=f.trucks.filter(t=>t.status==="IDLE").length;
+  const tankers=f.trucks.filter(t=>t.role!=="CLEANER");
+  const cleaners=f.trucks.filter(t=>t.role==="CLEANER");
+  const cleaning=tankers.filter(t=>isCleaning(t.status)).length;
+  const resting=tankers.filter(t=>t.status==="IDLE").length;
+  const roadActive=cleaners.filter(t=>t.status==="EN_ROUTE").length;
   document.getElementById("s-clean").textContent=cleaning;
   document.getElementById("s-clean-d").textContent=resting+" resting in reserve";
   document.getElementById("s-res").textContent=f.missions_resolved;
   document.getElementById("tick-label").textContent="Tick "+String(f.tick).padStart(2,"0");
   document.getElementById("time-label").textContent="T+"+f.minute+" min";
   const repl=f.trucks.filter(t=>t.status==="REPLENISHING").length;
-  document.getElementById("map-fleet").textContent=cleaning+" cleaning · "+resting+" resting · "+repl+" replenishing";
+  document.getElementById("map-fleet").textContent=cleaning+" misting · "+resting+" resting · "+roadActive+"/"+cleaners.length+" road cleaners washing · "+repl+" replenishing";
 
   const hs=document.getElementById("hotspots"); hs.innerHTML="";
   const crit=f.nodes.filter(n=>n.hotspot||n.predictive).sort((a,b)=>b.aqi-a.aqi);
@@ -448,13 +454,12 @@ function render(i){
         <div class="flex justify-between items-center"><span class="text-label-sm font-medium">${n.predictive?"Pre-emptive curtain":"Mitigation active"}</span>
           <span class="material-symbols-outlined text-primary text-sm">${n.predictive?"schedule":"water_drop"}</span></div></div>`); });
 
-  const c={SPRAYING:0,EN_ROUTE:0,REPLENISHING:0,IDLE:0,STUCK:0};
-  f.trucks.forEach(t=>c[t.status]=(c[t.status]||0)+1);
+  const sStat=s=>tankers.filter(t=>t.status===s).length;
   const cells=[
-    ["Cleaning on-site",c.SPRAYING,"cleaning_services","bg-primary-container text-on-primary-container"],
-    ["En-route to clean",c.EN_ROUTE,"navigation","bg-secondary-container text-on-secondary-container"],
-    ["Resting (reserve)",c.IDLE,"local_parking","bg-surface-container-high text-on-surface-variant"],
-    ["Replenishing",c.REPLENISHING+c.STUCK,"ev_station","bg-amber-100 text-amber-700"] ];
+    ["Misting on-site",sStat("SPRAYING"),"cleaning_services","bg-primary-container text-on-primary-container"],
+    ["En-route to hotspot",sStat("EN_ROUTE"),"navigation","bg-secondary-container text-on-secondary-container"],
+    ["Road cleaners washing",roadActive+" / "+cleaners.length,"mop","bg-teal-100 text-teal-700"],
+    ["Resting / replenishing",f.trucks.filter(t=>["IDLE","REPLENISHING","STUCK"].includes(t.status)).length,"local_parking","bg-surface-container-high text-on-surface-variant"] ];
   document.getElementById("fleet-grid").innerHTML=cells.map(x=>
     `<div class="p-5 border border-outline-variant rounded-xl flex items-center gap-4">
       <div class="p-3 ${x[3]} rounded-lg"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">${x[2]}</span></div>
@@ -509,9 +514,11 @@ function showView(v){
 function badge(s){ const c=STATUS[s]||'#6d7a72'; return `<span class="px-2 py-0.5 rounded-full text-xs font-bold" style="background:${c};color:#fff">${s}</span>`; }
 function buildFleet(f){
   document.getElementById('fleet-table').innerHTML=f.trucks.map(t=>{
-    const loc=NAME[t.node]||t.node, tgt=t.target?(NAME[t.target]||t.target):'—';
+    const loc=NAME[t.node]||t.node;
+    const tgt=t.role==='CLEANER'?'road patrol':(t.target?(NAME[t.target]||t.target):'—');
+    const cls=t.class+(t.role==='CLEANER'?' · cleaner':'');
     return `<tr class="cursor-pointer" onclick="window.open('driver.html?truck=${t.id}','_blank')">
-      <td class="px-3 py-2 font-bold">${t.id}</td><td>${t.class}</td><td class="py-2">${badge(t.status)}</td>
+      <td class="px-3 py-2 font-bold">${t.id}</td><td>${cls}</td><td class="py-2">${badge(t.status)}</td>
       <td>${loc}</td><td>${tgt}</td><td>${round(t.water)}%</td><td>${round(t.fuel)}%</td>
       <td class="text-secondary pr-3"><span class="material-symbols-outlined text-sm">open_in_new</span></td></tr>`;
   }).join('');

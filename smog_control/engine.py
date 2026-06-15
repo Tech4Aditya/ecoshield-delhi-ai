@@ -318,9 +318,11 @@ class SimulationEngine:
             self.coordinator.ingest_telemetry()
             self.coordinator.run_prediction()
             self.coordinator.run_dispatch()
+            self.coordinator.assign_patrols()
             results = self._advance_fleet(tick)
             self.coordinator.process_movement(results)
             self.coordinator.run_spraying()
+            self.coordinator.run_road_cleaning()
             self.coordinator.run_supply_lifecycle()
             self.coordinator.recover_stuck()
             self.coordinator.close_missions()
@@ -427,7 +429,7 @@ class SimulationEngine:
             if tick < truck.hold_until_tick:
                 return f"ETA-sync loiter -> next {nxt}"
             purpose = {"MISSION": "to hotspot", "REPLENISH_WATER": "to STP",
-                       "REPLENISH_FUEL": "to CNG"}.get(truck.route_purpose, "")
+                       "REPLENISH_FUEL": "to CNG", "PATROL": "washing roads"}.get(truck.route_purpose, "")
             lock = " [console LOCKED]" if truck.console_locked else ""
             return f"-> {nxt} ({purpose}){lock}"
         if st == OperationalStatus.SPRAYING:
@@ -501,7 +503,8 @@ class SimulationEngine:
             "edges": edges_directed,
             "bounds": {"minx": min(xs), "maxx": max(xs), "miny": min(ys), "maxy": max(ys)},
             "tick_minutes": TICK_MINUTES,
-            "fleet": [{"id": t.truck_id, "class": t.capacity_class.name} for t in self.fleet],
+            "fleet": [{"id": t.truck_id, "class": t.capacity_class.name, "role": t.role}
+                      for t in self.fleet],
         }
 
     def _capture_frame(self, tick: int) -> dict:
@@ -545,6 +548,7 @@ class SimulationEngine:
                 "target": t.target_node or "",
                 "note": self._truck_note(t, tick + 1),
                 "stationary": t.stationary_misting,
+                "role": t.role,
                 "route": list(t.route),          # Dijkstra-computed path (node ids)
                 "route_idx": t.route_index,        # current position along the path
                 "purpose": t.route_purpose,

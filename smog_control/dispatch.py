@@ -108,6 +108,8 @@ class FleetDispatcher:
         """
         matrix: list[CandidateScore] = []
         for truck in fleet:
+            if getattr(truck, "role", "SPRINKLER") != "SPRINKLER":
+                continue  # road-cleaning trucks are not dispatched to hotspots
             if not truck.is_available:
                 continue
             route = self.router.shortest_path(

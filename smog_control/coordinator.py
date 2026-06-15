@@ -23,8 +23,11 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from .config import (
+    CLEANER_FUEL_PER_TICK,
+    CLEANER_WATER_PER_TICK,
     CLEARED_PM25,
     CRITICAL_PM25,
+    DUST_SUPPRESS_PER_TICK,
     FASTPASS_FUEL_RATE_PER_PCT,
     FASTPASS_WATER_RATE_PER_KL,
     MAX_SUBFLEET,
@@ -313,6 +316,9 @@ class CentralAICoordinator:
                 )
         elif truck.route_purpose in ("REPLENISH_WATER", "REPLENISH_FUEL"):
             self._begin_replenishment(truck)
+        elif truck.route_purpose == "PATROL":
+            # Road cleaner finished a patrol leg; free it for a fresh route.
+            truck.reset_to_idle(truck.current_node)
 
     def _handle_stuck(self, truck: TankerTruck, result: MoveResult) -> None:
         """Branch the brief's two STUCK sub-routines.
@@ -475,6 +481,72 @@ class CentralAICoordinator:
         return not self.graph.neighbors(node_id)
 
     # ================================================================== #
+    # Road-cleaning fleet: continuous patrol + dust suppression           #
+    # ================================================================== #
+    def _road_cleaners(self) -> list[TankerTruck]:
+        return [t for t in self.fleet if t.role == "CLEANER"]
+
+    def _next_patrol_target(self, truck: TankerTruck) -> Optional[str]:
+        """Pick the next leg for a road cleaner -- bias toward the dustiest, busiest
+        corridors, rotated per-truck so the fleet spreads across the network."""
+        busy = sorted(
+            (n for n in self.graph.nodes() if not n.is_infrastructure),
+            key=lambda n: n.traffic_rate_influx,
+            reverse=True,
+        )
+        if not busy:
+            return None
+        try:
+            offset = int(truck.truck_id.split("-")[-1])
+        except ValueError:
+            offset = 0
+        idx = (self.tick + offset) % min(8, len(busy))
+        target = busy[idx].node_id
+        if target == truck.current_node:
+            target = busy[(idx + 1) % len(busy)].node_id
+        return target
+
+    def assign_patrols(self) -> None:
+        """Send idle, adequately-supplied road cleaners out on a fresh patrol leg.
+
+        Runs before fleet movement so the cleaners have a route to follow this tick.
+        """
+        for truck in self._road_cleaners():
+            if truck.operational_status != OperationalStatus.IDLE:
+                continue
+            if truck.is_low_water or truck.is_low_fuel:
+                continue  # the supply lifecycle will route it to a depot
+            target = self._next_patrol_target(truck)
+            if target is None:
+                continue
+            route = self.router.shortest_path(truck.current_node, target, truck.capacity_class)
+            if route is not None and not route.is_trivial:
+                truck.assign_route(route.path, target, purpose="PATROL")
+
+    def run_road_cleaning(self) -> None:
+        """Apply dust suppression for every patrolling cleaner that moved this tick.
+
+        Washing the road binds settled dust, so the cell the truck is on (and the
+        one it is heading into) shed PM that would otherwise be resuspended.
+        """
+        for truck in self._road_cleaners():
+            if (
+                truck.operational_status != OperationalStatus.EN_ROUTE
+                or truck.route_purpose != "PATROL"
+                or truck.water_level_liters <= 0
+                or self.tick < truck.hold_until_tick
+            ):
+                continue
+            here = self.graph.node(truck.current_node)
+            drop = here.knock_down_aqi(DUST_SUPPRESS_PER_TICK)
+            ahead = None
+            if truck.route and truck.route_index + 1 < len(truck.route):
+                ahead = self.graph.node(truck.route[truck.route_index + 1])
+                drop += ahead.knock_down_aqi(DUST_SUPPRESS_PER_TICK * 0.5)
+            truck.water_level_liters = max(0.0, truck.water_level_liters - CLEANER_WATER_PER_TICK)
+            truck.burn_idle_fuel(CLEANER_FUEL_PER_TICK)
+
+    # ================================================================== #
     # Closed-loop supply lifecycle                                        #
     # ================================================================== #
     def run_supply_lifecycle(self) -> None:
@@ -490,7 +562,7 @@ class CentralAICoordinator:
                 OperationalStatus.SPRAYING,
             ) or (
                 truck.operational_status == OperationalStatus.EN_ROUTE
-                and truck.route_purpose == "MISSION"
+                and truck.route_purpose in ("MISSION", "PATROL")
             ):
                 if truck.is_low_fuel:
                     self._route_to_facility(truck, NodeType.REFUELING, "REPLENISH_FUEL", "fuel")

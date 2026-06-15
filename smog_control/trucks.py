@@ -76,6 +76,7 @@ class TankerTruck:
     current_speed_kmh: float = 0.0
     target_node: Optional[str] = None
     operational_status: OperationalStatus = OperationalStatus.IDLE
+    role: str = "SPRINKLER"   # "SPRINKLER" (hotspot misting) or "CLEANER" (road washing)
 
     # --- route execution ------------------------------------------------ #
     route: list[str] = field(default_factory=list)

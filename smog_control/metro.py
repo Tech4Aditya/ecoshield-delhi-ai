@@ -19,6 +19,7 @@ import math
 import os
 import re
 
+from .config import CLEANER_FLEET_SIZE
 from .enums import CapacityClass
 from .topology import (
     Edge,
@@ -295,6 +296,16 @@ def build_metro_fleet(graph: TransitGraph) -> list[TankerTruck]:
     # One unit starts low on charge to exercise the refuel lifecycle.
     if fleet:
         fleet[-1].fuel_energy_pct = 17.0
+
+    # Dedicated road-cleaning fleet: these continuously patrol and wash roads,
+    # binding settled dust so particles stay on the ground (not hotspot misting).
+    for k in range(CLEANER_FLEET_SIZE):
+        depot = depots[k % len(depots)] if depots else "rajivchowk"
+        fleet.append(TankerTruck(
+            f"RC-{k + 1:02d}", CapacityClass.MEDIUM, depot,
+            water_level_liters=CapacityClass.MEDIUM.litres, fuel_energy_pct=100.0,
+            role="CLEANER",
+        ))
 
     for t in fleet:
         t.sync_position(graph)

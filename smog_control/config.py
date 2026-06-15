@@ -38,6 +38,14 @@ SPRAY_BURN_PCT_PER_TICK: float = 0.45
 # --------------------------------------------------------------------------- #
 # Air-quality model (CPCB PM2.5 sub-index breakpoints, ug/m3)                 #
 # --------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+# Road-cleaning (dust-suppression) fleet                                      #
+# --------------------------------------------------------------------------- #
+CLEANER_FLEET_SIZE: int = 10         # dedicated road-washing trucks
+DUST_SUPPRESS_PER_TICK: float = 5.0  # ug/m3 settled per cleaning tick, per cell
+CLEANER_WATER_PER_TICK: float = 180.0  # litres used washing roads each tick
+CLEANER_FUEL_PER_TICK: float = 0.18  # energy burned per cleaning tick (pct)
+
 CRITICAL_PM25: float = 250.0       # hotspot trigger (Very-Poor / Severe border)
 CLEARED_PM25: float = 185.0        # mission considered mitigated below this
 AQI_INFLUX_COEF: float = 1.7       # ug/m3 added per unit of traffic influx / tick

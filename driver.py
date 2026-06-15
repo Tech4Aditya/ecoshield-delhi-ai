@@ -253,7 +253,8 @@ function tagClass(l){ if(l.includes("EXCEPTION")||l.includes("STUCK"))return"tex
 function render(i){
   const f=frames[i], t=f.t;
   document.getElementById("truck-class").textContent = t.class.charAt(0)+t.class.slice(1).toLowerCase()+" tanker";
-  const [label,color]=STATUS[t.status]||["--","#6d7a72"];
+  let [label,color]=STATUS[t.status]||["--","#6d7a72"];
+  if(t.purpose==="PATROL"){ label="Cleaning roads"; color="#0ea5a4"; }
   const pill=document.getElementById("status-pill");
   pill.textContent=label; pill.style.background=color; pill.style.color="#fff";
   document.getElementById("loc").textContent="at "+(NAME[t.node]||t.node);
@@ -266,6 +267,7 @@ function render(i){
   // mission
   const mission=document.getElementById("mission");
   if(t.status==="IDLE"){ mission.innerHTML='<span class="font-bold text-primary">Resting in reserve.</span> Awaiting dispatch at '+(NAME[t.node]||t.node)+'.'; }
+  else if(t.purpose==="PATROL"){ mission.innerHTML='<span class="font-bold" style="color:#0ea5a4">Road-cleaning patrol.</span> Washing roads to bind settled dust and keep particles on the ground.'; }
   else if(t.purpose.indexOf("REPLENISH")>=0){ mission.innerHTML='<span class="font-bold text-amber-700">Replenishing.</span> Destination: '+(NAME[t.target]||t.target)+' depot.'; }
   else if(t.target){ mission.innerHTML='<span class="font-bold">Target hotspot:</span> '+(NAME[t.target]||t.target)+(f.taqi?(' &middot; <span class="text-error font-bold">AQI '+round(f.taqi)+'</span>'):''); }
   else mission.textContent="Standing by.";
@@ -311,6 +313,7 @@ function render(i){
   document.getElementById("scrub").value=i;
 }
 function synth(t){ if(t.status==="IDLE")return"Resting in reserve. Standing by for AI dispatch.";
+  if(t.purpose==="PATROL")return"Continue road-cleaning patrol; wash roads to keep dust on the ground.";
   if(t.purpose.indexOf("REPLENISH")>=0)return"Proceed to depot to replenish (console locked).";
   if(t.status==="SPRAYING")return"Hold position. Misting cannons engaged.";
   if(t.target)return"Proceed to "+(NAME[t.target]||t.target)+" via the Dijkstra-optimised route.";
