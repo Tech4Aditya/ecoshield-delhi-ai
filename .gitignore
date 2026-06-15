@@ -6,3 +6,6 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
+node_modules/
+package-lock.json
+.claude/launch.json
