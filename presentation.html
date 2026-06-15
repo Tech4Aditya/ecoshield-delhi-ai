@@ -77,7 +77,7 @@
   <div class="pad">
     <div class="kicker">The problem</div>
     <h2 style="margin-top:12px;">Delhi's air is a moving, time-critical target</h2>
-    <p class="lead" style="max-width:980px; margin-top:16px;">PM2.5 hotspots flare unpredictably with traffic surges, industrial haze and inversions. Static smog towers cannot follow the pollution &mdash; mitigation has to be mobile, predictive and coordinated.</p>
+    <p class="lead" style="max-width:980px; margin-top:16px;">PM2.5 hotspots flare unpredictably with traffic surges, industrial haze, inversions and <b>road &amp; construction dust resuspended by passing traffic</b>. Static smog towers cannot follow the pollution &mdash; mitigation has to be mobile, predictive and coordinated.</p>
     <div class="grid" style="grid-template-columns:repeat(3,1fr); margin-top:40px;">
       <div class="stat"><div class="v accent" style="color:var(--error);">250+</div><div class="k">PM2.5 (ug/m3) marks a "severe" hotspot needing intervention</div></div>
       <div class="stat"><div class="v accent">6+</div><div class="k">Major junctions flare at once during peak events</div></div>
@@ -98,10 +98,14 @@
       <div class="card"><h3 class="accent">Mobile tanker fleet</h3><p>Heterogeneous water-sprinkler trucks (3000 / 5000 / 12000 L) with IoT misting cannons. Drivers steer; the AI dictates the route.</p></div>
       <div class="card"><h3 class="accent2">Delhi Metro network</h3><p>~50 real stations across all lines plus 6 water/charging depots form the directed road graph the fleet operates on.</p></div>
     </div>
-    <div style="margin-top:34px;" class="grid">
+    <div class="grid" style="grid-template-columns:1fr 1fr; margin-top:22px;">
+      <div class="card" style="background:#eaf3ee; border-color:#9fe1cb;">
+        <h3 class="accent">Road cleaning &amp; dust suppression</h3>
+        <p style="font-size:16px;">Beyond misting the air, the tankers <b>wet-wash the road surface</b> &mdash; binding settled road and construction dust so it <b>stays on the ground</b> instead of being kicked back up as PM10 / PM2.5 by passing traffic.</p>
+      </div>
       <div class="card" style="background:#eef0ff; border-color:#c3c0ff;">
         <h3 class="accent2">Why "agentic"</h3>
-        <p style="font-size:17px;">The system perceives (live AQI + traffic), reasons (predict, score, route), and acts (dispatch, spray, replenish) in a continuous closed loop &mdash; with no human in the routing decision. Humans are treated as bounded mechanical actuators behind a lockable console.</p>
+        <p style="font-size:16px;">Perceive (live AQI + traffic), reason (predict, score, route), act (dispatch, spray, replenish) in a continuous closed loop &mdash; with no human in the routing decision.</p>
       </div>
     </div>
   </div>

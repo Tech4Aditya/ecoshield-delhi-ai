@@ -541,7 +541,8 @@ function computeRoute(){
   rmap.fitBounds(L.latLngBounds(pts).pad(0.25));
 }
 
-document.querySelectorAll('[data-view]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); showView(a.getAttribute('data-view')); }));
-showView('control');
+document.querySelectorAll('[data-view]').forEach(a=>a.addEventListener('click',e=>{ e.preventDefault(); showView(a.getAttribute('data-view')); location.hash=a.getAttribute('data-view'); }));
+const _hv=(location.hash||'').replace('#','');
+showView(['control','fleet','metro','routing','health'].includes(_hv)?_hv:'control');
 </script>
 </body></html>
