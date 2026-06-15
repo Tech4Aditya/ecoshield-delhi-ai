@@ -169,7 +169,7 @@ _TEMPLATE = r"""<!DOCTYPE html>
     </div>
 
     <div class="lg:col-span-3 flex flex-col gap-md">
-      <div class="h-[440px] rounded-2xl border border-outline-variant overflow-hidden relative">
+      <div class="h-[440px] rounded-2xl border border-outline-variant overflow-hidden relative isolate">
         <div id="map"></div>
         <div class="absolute top-3 left-3 z-[400] bg-white/90 backdrop-blur px-3 py-2 rounded-lg border border-outline-variant text-label-sm font-bold flex items-center gap-2 pointer-events-none">
           <span class="material-symbols-outlined text-sm text-primary">my_location</span><span id="map-next">--</span></div>
